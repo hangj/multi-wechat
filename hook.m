@@ -155,7 +155,7 @@ void hookClassMethod(Class originalClass, SEL originalSelector, Class swizzledCl
     NSMutableArray<NSString*>* mut = [NSMutableArray arrayWithCapacity: arr.count];
 
     for(id s in arr){
-        if ([s containsString:@"fuck"])
+        if ([s containsString:@"multi-wechat"])
             continue;
         [mut addObject:s];
     }
