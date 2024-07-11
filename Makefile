@@ -20,5 +20,5 @@ install: libmulti-wechat.dylib dylib-insert
 	cp libmulti-wechat.dylib $(WECHAT_FRAMEWORKS)
 	./dylib-insert $(WECHAT_DIR) $(WECHAT_FRAMEWORKS)/libmulti-wechat.dylib
 
-uninstall: WECHAT_BAK
+uninstall: $(WECHAT_BAK)
 	cp $(WECHAT_BAK) $(WECHAT_DIR)
