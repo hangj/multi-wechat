@@ -1,5 +1,7 @@
 # multi-wechat
 
+通过 hook OC 代码来达到多开的目的
+
 
 ```bash
 sudo chown -R $(whoami) /Applications/WeChat.app
