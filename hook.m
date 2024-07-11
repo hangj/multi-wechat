@@ -8,6 +8,13 @@
 + (void)hookWeChat;
 @end
 
+@interface AboutWindowController : NSWindowController
+@property(retain, nonatomic) NSTextField* textField;
+@end
+
+@implementation AboutWindowController
+@end
+
 
 static int argc = 1;
 static char** argv = 0;
@@ -183,6 +190,11 @@ void hookClassMethod(Class originalClass, SEL originalSelector, Class swizzledCl
         }
         [arguments addObject:applicationPath];
 
+        [arguments addObject:@"--args"];
+        for (int i=1; i < argc; i++) {
+            [arguments addObject:[[NSString alloc] initWithFormat:@"%s", argv[i]]];
+        }
+
         arguments;
     });
 
@@ -198,8 +210,13 @@ void hookClassMethod(Class originalClass, SEL originalSelector, Class swizzledCl
         item;
     });
 
+    NSMenuItem* about = [[NSMenuItem alloc] initWithTitle:@"about" action:@selector(aboutThisHelper:) keyEquivalent:@""];
+    about.state = NSControlStateValueOff; // NSControlStateValueOn; NSControlStateValueOff; NSControlStateValueMixed;
+
+
     NSMenu *subMenu = [[NSMenu alloc] initWithTitle:@"WeCode"];
     [subMenu addItem:newlogin];
+    [subMenu addItem:about];
 
     NSMenuItem *menuItem = [[NSMenuItem alloc] init];
     [menuItem setSubmenu:subMenu];
@@ -207,6 +224,53 @@ void hookClassMethod(Class originalClass, SEL originalSelector, Class swizzledCl
     [[[NSApplication sharedApplication] mainMenu] addItem:menuItem];
 
     [self hook_applicationDidFinishLaunching:arg];
+}
+
+-(void)aboutThisHelper:(NSMenuItem*)item {
+    static char dummy;
+
+    id wechat = [objc_getClass("WeChat") sharedInstance];
+    AboutWindowController *about = objc_getAssociatedObject(wechat, &dummy);
+
+    if (!about) {
+        NSSize screenSize = [NSScreen mainScreen].frame.size;
+        NSSize windowSize = NSMakeSize(600, 300);
+
+        // https://stackoverflow.com/a/11010614/1936057
+        NSWindow* window = [
+            [[NSWindow alloc]
+                initWithContentRect:NSMakeRect(screenSize.width/2 - windowSize.width/2, screenSize.height/2 - windowSize.height/2, windowSize.width, windowSize.height)
+                styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable
+                backing:NSBackingStoreBuffered
+                defer:NO]
+            autorelease
+            ];
+
+        // [window cascadeTopLeftFromPoint:NSMakePoint(100, 100)];
+        [window setTitle:@"WeCode"];
+        [window makeKeyAndOrderFront:nil];
+        [window center];
+
+        NSTextField *myTextField = [[NSTextField alloc] initWithFrame:NSMakeRect(0,0,100,100)];
+        myTextField.stringValue = @"Hello World";
+        myTextField.alignment = NSTextAlignmentLeft;
+        window.contentView = myTextField;
+        // [window.contentView addSubview:myTextField];
+
+        about = [[AboutWindowController alloc] initWithWindow:window];
+        about.textField = myTextField;
+        objc_setAssociatedObject(wechat, &dummy, about, OBJC_ASSOCIATION_RETAIN);
+    }
+
+    about.textField.stringValue = [NSString
+        stringWithFormat:
+            @"author: %s\n\n"
+            @"github: %s\n\n",
+
+            "hangj",
+            "https://github.com/hangj/multi-wechat"
+        ];
+    [about showWindow:nil];
 }
 
 @end

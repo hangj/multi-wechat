@@ -8,6 +8,11 @@ WECHAT_BAK = /Applications/WeChat.app/Contents/MacOS/WeChat.bak
 WECHAT_FRAMEWORKS = /Applications/WeChat.app/Contents/Frameworks
 
 
+.PHONY : all
+
+all: dylib-insert libmulti-wechat.dylib
+
+
 dylib-insert: dylib-insert.c
 	$(CC) $< -o $@
 
@@ -15,7 +20,7 @@ libmulti-wechat.dylib: hook.m
 	$(CC) $(CFLAGS) -o $@ $^
 
 
-install: libmulti-wechat.dylib dylib-insert
+install: libmulti-wechat.dylib dylib-insert $(WECHAT_DIR) $(WECHAT_BAK)
 	if [ ! -f $(WECHAT_BAK) ]; then cp -n $(WECHAT_DIR) $(WECHAT_BAK); fi
 	cp libmulti-wechat.dylib $(WECHAT_FRAMEWORKS)
 	./dylib-insert $(WECHAT_DIR) $(WECHAT_FRAMEWORKS)/libmulti-wechat.dylib
