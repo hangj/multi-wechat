@@ -2,6 +2,10 @@
 
 通过 hook OC 代码来达到多开的目的
 
+# 注意
+不支持微信 4.0 以上版本  
+下载微信历史版本: https://github.com/zsbai/wechat-versions/releases
+
 
 ```bash
 sudo chown -R $(whoami) /Applications/WeChat.app
