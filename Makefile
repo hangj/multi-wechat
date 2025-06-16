@@ -24,6 +24,9 @@ install: libmulti-wechat.dylib dylib-insert $(WECHAT_DIR) $(WECHAT_BAK)
 	if [ ! -f $(WECHAT_BAK) ]; then cp -n $(WECHAT_DIR) $(WECHAT_BAK); fi
 	cp libmulti-wechat.dylib $(WECHAT_FRAMEWORKS)
 	./dylib-insert $(WECHAT_DIR) $(WECHAT_FRAMEWORKS)/libmulti-wechat.dylib
+	codesign --force --deep --sign - /Applications/WeChat.app
+	xattr -cr /Applications/WeChat.app
+
 
 uninstall: $(WECHAT_BAK)
 	cp $(WECHAT_BAK) $(WECHAT_DIR)

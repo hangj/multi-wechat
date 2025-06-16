@@ -74,8 +74,8 @@ void hookClassMethod(Class originalClass, SEL originalSelector, Class swizzledCl
     hookMethod(objc_getClass("MMSafeModeService"), @selector(shouldShowSafeMode), [self class], @selector(hook_shouldShowSafeMode));
     hookMethod(objc_getClass("MMSafeModeService"), @selector(addCrash), [self class], @selector(hook_addCrash));
     hookMethod(objc_getClass("MMSafeModeService"), @selector(saveData), [self class], @selector(hook_saveData));
-    hookMethod(objc_getClass("KSCrash"), @selector(setOnCrash:), [self class], @selector(hook_emptySet:));
-    hookMethod(objc_getClass("KSCrash"), @selector(setOnHandleSignalCallBack:), [self class], @selector(hook_emptySet:));
+    hookMethod(objc_getClass("KSCrash"), @selector(setOnCrash:), [self class], @selector(hook_setOnCrash:));
+    hookMethod(objc_getClass("KSCrash"), @selector(setOnHandleSignalCallBack:), [self class], @selector(hook_setOnHandleSignalCallBack:));
 
 
     // crash report
@@ -84,10 +84,10 @@ void hookClassMethod(Class originalClass, SEL originalSelector, Class swizzledCl
     hookMethod(objc_getClass("KSCrash"), @selector(sendReports:onCompletion:), [self class], @selector(hook_sendReports:onCompletion:));
     hookMethod(objc_getClass("KSCrash"), @selector(reportUserException:reason:language:lineOfCode:stackTrace:logAllThreads:enableSnapshot:terminateProgram:writeCpuUsage:dumpFilePath:dumpType:), [self class], @selector(hook_reportUserException:reason:language:lineOfCode:stackTrace:logAllThreads:enableSnapshot:terminateProgram:writeCpuUsage:dumpFilePath:dumpType:));
     hookMethod(objc_getClass("KSCrash"), @selector(sendAllReportsWithCompletion:), [self class], @selector(hook_sendAllReportsWithCompletion:));
-    hookMethod(objc_getClass("MMSafeModeService"), @selector(uploadLog), [self class], @selector(hook_uploadLog));
-    hookMethod(objc_getClass("MMAppLogUploader"), @selector(uploadLog:), [self class], @selector(hook_uploadLog:));
-    hookMethod(objc_getClass("MMLogUploader"), @selector(uploadLog:), [self class], @selector(hook_uploadLog:));
-    hookMethod(objc_getClass("MMCovLogUploader"), @selector(uploadLog:), [self class], @selector(hook_uploadLog:));
+    hookMethod(objc_getClass("MMSafeModeService"), @selector(uploadLog), [self class], @selector(hook_MMSafeModeService_uploadLog));
+    hookMethod(objc_getClass("MMAppLogUploader"), @selector(uploadLog:), [self class], @selector(hook_MMAppLogUploader_uploadLog:));
+    hookMethod(objc_getClass("MMLogUploader"), @selector(uploadLog:), [self class], @selector(hook_MMLogUploader_uploadLog:));
+    hookMethod(objc_getClass("MMCovLogUploader"), @selector(uploadLog:), [self class], @selector(hook_MMCovLogUploader_uploadLog:));
 
     // 检查第三方 dylib
     // Expt MMExptOldImpl.mm:-[MMExptOldImpl getStringExpt:] INFO: [10094]expt API got expt result[WeChatTweak,WeChatExtension,WeChatPlugin,WeChatSeptet,libtrld_trlib.dylib] exptId[4260079] key[clicfg_mac_third_party_image_list] cost[0]
@@ -104,20 +104,23 @@ void hookClassMethod(Class originalClass, SEL originalSelector, Class swizzledCl
 
 -(void)hook_addCrash:(id)arg1 {  }
 -(void)hook_saveData{}
--(void)hook_uploadLog{}
--(void)hook_uploadLog:(id)arg1{  }
+-(void)hook_MMSafeModeService_uploadLog{}
+-(void)hook_MMAppLogUploader_uploadLog:(id)arg1{  }
+-(void)hook_MMLogUploader_uploadLog:(id)arg1{  }
+-(void)hook_MMCovLogUploader_uploadLog:(id)arg1{  }
 -(void)hook_uploadCrash {}
 -(void)hook_reportCrash {}
 -(void)hook_detect {}
--(void)hook_emptySet:(id)arg{}
+-(void)hook_setOnCrash:(id)arg{}
+-(void)hook_setOnHandleSignalCallBack:(id)arg{}
 -(void)hook_sendReports:(id)arg1 onCompletion:(id)arg2 {
-    [self performSelector:@selector(deleteAllReports)];
+    /* [self performSelector:@selector(deleteAllReports)]; */
 }
 -(void)hook_reportUserException:(id)arg1 reason:(id)arg2 language:(id)arg3 lineOfCode:(id)arg4 stackTrace:(id)arg5 logAllThreads:(id)arg6 enableSnapshot:(id)arg7 terminateProgram:(id)arg8 writeCpuUsage:(id)arg9 dumpFilePath:(id)arg10 dumpType:(id)arg11 {
-    [self performSelector:@selector(deleteAllReports)];
+    /* [self performSelector:@selector(deleteAllReports)]; */
 }
 -(void)hook_sendAllReportsWithCompletion:(id)arg{
-    [self performSelector:@selector(deleteAllReports)];
+    /* [self performSelector:@selector(deleteAllReports)]; */
 }
 
 
@@ -134,11 +137,6 @@ void hookClassMethod(Class originalClass, SEL originalSelector, Class swizzledCl
 
 - (NSMenu *)hook_applicationDockMenu:(NSApplication *)sender {
     NSMenu *menu = [self hook_applicationDockMenu:sender];
-    NSMenuItem *menuItem = ({
-        NSMenuItem *item = [[NSMenuItem alloc] initWithTitle: @"登录新的微信" action:@selector(openNewWeChatInstace:) keyEquivalent:@""];
-        item.tag = 9527;
-        item;
-    });
 
     // __block makes the blocks keep a reference to the variable (call-by-reference).
     __block BOOL added = NO;
@@ -148,6 +146,12 @@ void hookClassMethod(Class originalClass, SEL originalSelector, Class swizzledCl
         }
     }];
     if (!added) {
+        NSMenuItem *menuItem = ({
+                NSMenuItem *item = [[NSMenuItem alloc] initWithTitle: @"登录新的微信" action:@selector(openNewWeChatInstace:) keyEquivalent:@""];
+                item.tag = 9527;
+                item;
+                });
+
         [menu insertItem:menuItem atIndex:0];
     }
     return menu;
