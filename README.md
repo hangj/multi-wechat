@@ -6,6 +6,7 @@
 不支持微信 4.0 以上版本  
 下载微信历史版本: https://github.com/zsbai/wechat-versions/releases
 
+# 怎么使用
 
 ```bash
 sudo chown -R $(whoami) /Applications/WeChat.app
