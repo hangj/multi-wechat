@@ -1,7 +1,7 @@
 
 CC = clang
 
-CFLAGS = -O2 -Wall -framework AppKit -framework Foundation -dynamiclib
+CFLAGS = -O2 -Wall -framework AppKit -framework Foundation -dynamiclib -arch arm64 -arch x86_64
 
 WECHAT_DIR = /Applications/WeChat.app/Contents/MacOS/WeChat
 WECHAT_BAK = /Applications/WeChat.app/Contents/MacOS/WeChat.bak
