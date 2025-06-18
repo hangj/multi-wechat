@@ -39,3 +39,11 @@ xattr -cr /Applications/WeChat.app
 
 开启微信完全磁盘访问权限可以解决
 
+
+# a note
+
+```sh
+lipo WeChat.bak -thin arm64 -output WeChat.arm64 # 瘦身为 arm64 版本
+osacompile -e 'do shell script "open -n  /Applications/WeChat.app"' -o /Applications/FuckWeChat.app
+osacompile -e 'do shell script "/usr/bin/nohup /Applications/WeChat.app/Contents/MacOS/WeChat >/dev/null 2>&1 &"' -o /Applications/FuckWeChat.app
+```
